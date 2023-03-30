@@ -1,0 +1,76 @@
+---
+title: "493 Final"
+author: "Siwei"
+date: "2023-03-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(fpp3)
+library(tsibble)
+```
+
+
+## a
+```{r}
+data(pelt)
+pelt %>% autoplot(Hare)+
+  labs(title = "Trend of Hare") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## b
+```{r}
+Arima_model <- pelt %>%
+  model(ARIMA(Hare)) %>%
+  report(Arima_model)
+
+# In this question, the ARIMA model is ARIMA(2,0,1) which means p = 2, d = 0, q = 1.
+```
+
+## c
+```{r}
+pelt %>%
+  gg_tsdisplay(Hare, plot_type='partial')
+
+# In the ACF graph, the lag is decreasing slowly. And in the both directions, there are spikes.
+# In the PACF graph, the lag 1 and lag 2 have spikes which means significant. This indicates the Autoregressive process.
+```
+## d
+```{r}
+c = 30993
+p1 = 0.82
+p2 = -0.29
+p3 = -0.01
+p4 = -0.22
+
+year_1932 <- 82110
+year_1933 <- 89760
+year_1934 <- 81660
+year_1935 <- 15760
+
+fc_1936 = c + p1*(year_1935) + p2*(year_1934) + p3*(year_1933) + p4*(year_1932)
+fc_1937 = c + p1*(fc_1936) + p2*(year_1935) + p3*(year_1934) + p4*(year_1933)
+fc_1938 = c + p1*(fc_1937) + p2*(fc_1936) + p3*(year_1935) + p4*(year_1934)
+fc_1939 = c + p1*(fc_1938) + p2*(fc_1937) + p3*(fc_1936) + p4*(year_1935)
+
+cbind(fc_1936,fc_1937,fc_1938,fc_1939)
+```
+
+
+## e
+```{r}
+hare_fc <- pelt %>% model(ARIMA(Hare))
+hare_fc %>% forecast(h=4)
+# The prediction value from the forcast() is much higher the previous values. I think this is because when we calculate the forecast without forcast(), since the we only use the last five years. So it is not as accurate as the forecast() function.
+```
+
+
+
+
+
+
+
+
+
